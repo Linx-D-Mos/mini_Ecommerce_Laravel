@@ -214,3 +214,23 @@ Middleware Personalizado: Creé IsAdmin para proteger rutas críticas. Aprendí 
 Refactorización de Servicio: Mejoré el SlugService. En lugar de lanzar una Excepción (Error 500) cuando un nombre está duplicado, implementé un while que agrega un contador incremental (slug-1, slug-2). Esto mejora la experiencia de usuario (UX) automáticamente.
 
 Transacciones: Uso de DB::transaction al crear productos para asegurar que o se guarda todo (BD + Archivos) o no se guarda nada.
+
+## 📅 [23-01-2026] - Archivos, Seguridad y Debugging
+
+### 1. 📂 Subida y Descarga Segura de Archivos
+- **Arquitectura de Controladores:** Aprendí a separar responsabilidades.
+  - `ProductController` (API): Gestiona la lógica de negocio y genera permisos (JSON).
+  - `SignedStorageController` (Web/Invokable): Se encarga exclusivamente de servir el archivo binario (`Storage::download`).
+- **Signed URLs:** Implementé `URL::temporarySignedRoute`.
+  - Permite crear enlaces con fecha de caducidad y firma criptográfica.
+  - No requiere autenticación de usuario en la ruta final, ya que la seguridad va incrustada en la firma del link.
+- **Rutas con Regex:** Aprendí a usar `->where('path', '.*')` en rutas web para permitir que los parámetros incluyan barras inclinadas (`/`) sin romper el ruteo de Laravel.
+
+### 2. 🐛 Debugging y Herramientas (Postman & Tinker)
+- **Error de Puertos:** Entendí la diferencia entre el puerto de la App (80/8000) y el de la BD (5432). Enviar peticiones HTTP al puerto de Postgres causa `socket hang up`.
+- **Form-Data:** Para subir archivos en Postman, el Body debe ser `form-data`, las keys deben ser tipo `File` y **no** se deben usar comillas en los strings.
+- **Tinker Trait:** Si `User::createToken` falla, es porque falta el trait `HasApiTokens` en el modelo. Tinker requiere reiniciarse (`exit`) para detectar cambios en el código.
+
+### 3. 🧪 Testing de Integración
+- **Simulación de Compra:** Para probar la descarga, el test debe crear primero una `Order` en base de datos.
+- **Validación de JSON:** Usar `assertJsonStructure(['url'])` para verificar respuestas dinámicas sin conocer el valor exacto del hash.

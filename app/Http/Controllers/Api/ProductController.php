@@ -20,7 +20,8 @@ class ProductController extends Controller
      */
     public function index()
     {
-        //
+        $products = Product::published()->search(request('search'))->paginate(10);
+        return ProductResource::collection($products);
     }
 
     /**
@@ -93,5 +94,10 @@ class ProductController extends Controller
                 'message' => $e->getMessage(),
             ]);
         }
+    }
+    public function eliminados()
+    {
+        $products = Product::eliminados()->paginate(10);
+        return new ProductResource($products);
     }
 }
