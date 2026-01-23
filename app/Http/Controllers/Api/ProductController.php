@@ -1,15 +1,16 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
-use App\Enums\ProductStatus;
+
+use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreProductRequest;
 use App\Http\Resources\ProductResource;
 use App\Models\Product;
+use App\Services\DownloadProductService;
 use App\Services\SlugService;
 use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
 
 class ProductController extends Controller
@@ -27,23 +28,24 @@ class ProductController extends Controller
      */
     public function store(StoreProductRequest $request, SlugService $slugService)
     {
+        //Obtencion de datos validados
         $validated = $request->validated();
         $slug = $slugService->createSlug($validated['name']);
 
+        //Subida de archivos al storage
         $imagePath = $request->file('image')->store('products', 'public');
         $contentPath = $request->file('content')->store('products_private', 'local');
 
-        $product = DB::transaction(
-            function () use ($validated, $slug, $imagePath, $contentPath) {
-                $data = array_merge($validated, [
-                    'slug' => $slug,
-                    'image_path' => $imagePath,
-                    'content_path' => $contentPath,
-                ]);
-               $product = Product::create($data);
-               return $product;
-            }
-        );
+        //Operación de creación
+        $product = Product::create(array_merge(
+            $validated,
+            [
+                'slug' => $slug,
+                'image_path' => $imagePath,
+                'content_path' => $contentPath,
+            ]
+        ));
+        //Envio de respuesta
         return (new ProductResource($product))
             ->additional(
                 ['message' => '¡Producto creado con exito!']
@@ -74,5 +76,22 @@ class ProductController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+    public function download(Product $product, DownloadProductService $service)
+    {
+        $user = request()->user();
+        try {
+            $url = $service->generateSignedUrl($user, $product);
+
+            return response()->json([
+                'url' => $url,
+                'message' => 'Url generada correctamente, expira en 30 minutos'
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'error' => 'Business Logic Error',
+                'message' => $e->getMessage(),
+            ]);
+        }
     }
 }

@@ -6,6 +6,7 @@ use App\Models\Order;
 use App\Models\Product;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Symfony\Component\Translation\StaticMessage;
 
 use function Illuminate\Support\hours;
 
@@ -22,17 +23,21 @@ class OrderFactory extends Factory
     public function definition(): array
     {
         return [
-            'user_id' => User::factory()->create()->id,
-            'total_amount' => fake()->numberBetween(10000,50000),
-            'bought_at' => fake()->dateTimeBetween('-3 days','-1 hour'),
+            'user_id' => User::factory()->create(),
+            'total_amount' => 0,
+            'bought_at' => null,
         ];
     }
-    public function configure()
-    {
-        return $this->afterCreating(function (Order $order) {
-            if($order->products()->count() === 0){
-                $order->products()->attach(Product::factory()->create());
+
+    public function withProducts(int $count = 1): static {
+        return $this->afterCreating(function (Order $order) use ($count) {
+            $products = Product::factory($count)->create();
+            foreach($products as $product){
+                $order->products()->attach($product, ['price_at_purchase' => $product->price]);
             }
+            $order->update(['total_amount' => $products->sum('price')]);
         });
     }
+    
+    //$order = Order::factory()->withProducts(3)->create();
 }

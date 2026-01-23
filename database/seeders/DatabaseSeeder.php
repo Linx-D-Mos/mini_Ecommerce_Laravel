@@ -27,7 +27,7 @@ class DatabaseSeeder extends Seeder
                 $order = Order::create([
                     'user_id' => $user->id,
                     'total_amount' => 0,
-                    'bought_at' => now(),
+                    'bought_at' => fake()->boolean() ? fake()->dateTimeBetween('-3 days','-1 hour') : null,
                 ]);
                 $count = rand(1, 3);
                 $total_amount = 0;
