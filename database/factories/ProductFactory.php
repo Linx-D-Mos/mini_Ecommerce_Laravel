@@ -3,6 +3,8 @@
 namespace Database\Factories;
 
 use App\Enums\ProductStatus;
+use App\Models\Product;
+use App\Services\SlugService;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -17,11 +19,11 @@ class ProductFactory extends Factory
      */
     public function definition(): array
     {
-        $slug = fake()->words(3);
+       $name = fake()->name();
         return [
-            'name' => fake()->name(),
+            'name' => $name,
             'price' => fake()->numberBetween(5000,10000),
-            'slug' =>  fake()->bothify('???-???-???'),
+            'slug' =>  app(SlugService::class)->createSlug($name),
             'description' => fake()->paragraph(),
             'image_path' => fake()->url(),
             'content_path' => fake()->url(),

@@ -4,6 +4,8 @@ use App\Models\Product;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
+use function Pest\Laravel\actingAs;
+
 uses(RefreshDatabase::class);
 
 it('admin can view deleted products', function () {
@@ -11,23 +13,23 @@ it('admin can view deleted products', function () {
     $product = Product::factory()->create(['name' => 'borrame']);
     $product->delete();
 
-    $this->actingAs($admin)->getJson('/api/products')
+    actingAs($admin)->getJson('/api/products')
         ->assertJsonMissing(['name' => 'borrame']);
 
-    $this->actingAs($admin)->getJson('/api/products/trashed')
+    actingAs($admin)->getJson('/api/products/trashed')
         ->assertOk()
-        ->assertJsonFragment(['name' => 'borrame']);
+        ->assertJsonFragment(['name' => 'Borrame']);
 });
 
 it('admin can restore a deleted product', function () {
     $admin = User::factory()->create(['is_admin' => true]);
-    $product = Product::factory()->create(['name' => 'borrame']);
+    $product = Product::factory()->create(['name' => 'arremangala rempulajada arremangala']);
     $product->delete();
 
-    $response = $this->actingAs($admin)
-    ->pathJson("/api/products/{$product->id}/restore");
+    $response = actingAs($admin)
+    ->patchJson("/api/products/{$product->id}/restore");
 
-    $response->assertOk();
+    $response->assertOk()->dump();
 
-    expect($product->fresh()->deleted_At)->toBeNull();
-})->skip();
+    expect($product->fresh()->deleted_at)->toBeNull();
+});

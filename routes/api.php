@@ -9,7 +9,9 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 Route::middleware(['auth:sanctum', 'admin'])->group(function () {
+    
+    Route::get('products/{product}/download', [ProductController::class, 'download']);
+    Route::get('products/trashed', [ProductController::class, 'trashed']);
+    Route::patch('products/{product}/restore', [ProductController::class, 'restore']);
     Route::apiResource('products', ProductController::class);
-    Route::get('/products/{product}/download', [ProductController::class, 'download']);
-    Route::get('/products/trashed', [ProductController::class, 'eliminados']);
 });

@@ -4,13 +4,16 @@ namespace App\Http\Controllers\Api;
 
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\RestoreProductRequest;
 use App\Http\Requests\StoreProductRequest;
 use App\Http\Resources\ProductResource;
 use App\Models\Product;
 use App\Services\DownloadProductService;
+use App\Services\RestoreProductService;
 use App\Services\SlugService;
 use Exception;
 use Illuminate\Http\Request;
+use Ramsey\Collection\Collection;
 use Symfony\Component\HttpFoundation\Response;
 
 class ProductController extends Controller
@@ -95,9 +98,17 @@ class ProductController extends Controller
             ]);
         }
     }
-    public function eliminados()
+    public function trashed()
     {
         $products = Product::eliminados()->paginate(10);
-        return new ProductResource($products);
+        return ProductResource::collection($products);
+    }
+    public function restore(string $id, RestoreProductService $service)
+    {
+        $product = $service->restore($id);
+        return (new ProductResource($product))
+        ->additional(['message', '¡Producto recuperado con exito!'])
+        ->response()
+            ->setStatusCode(Response::HTTP_OK);
     }
 }

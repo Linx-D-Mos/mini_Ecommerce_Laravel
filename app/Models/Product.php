@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\ProductStatus;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -47,7 +48,21 @@ class Product extends Model
         }
     }
     public function scopeEliminados(Builder $query):void
+    {  
+        $query->onlyTrashed();
+    }
+
+    protected function priceFormatted(): Attribute
     {
-        $query->withTrashed();
+        return Attribute::make(
+            get: fn(mixed $value, array $attributes)=>
+            '$' . number_format($attributes['price'] / 100,2) . ' USD',
+        );
+    }
+    protected function name(): Attribute
+    {
+        return Attribute::make(
+            set: fn (string $value) => ucfirst(strtolower($value)),
+        );
     }
 }

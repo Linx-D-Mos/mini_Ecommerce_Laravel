@@ -28,6 +28,9 @@ it('only show the published products', function () {
     $response->assertJsonCount(1,'data');
     $response->assertJsonFragment(['name' => 'Producto real']);
     $response->assertJsonMissing(['name' => 'Cant see me']);
+    $response->assertJsonFragment([
+        'price_formatted' => '$' . number_format($producto_visible->price / 100, 2) . ' USD'
+    ]);
 });
 
 it('can show a search producto that is published', function () {
