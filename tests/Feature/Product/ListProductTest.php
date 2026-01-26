@@ -6,8 +6,8 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 use function Pest\Laravel\actingAs;
 
-
 uses(RefreshDatabase::class);
+
 it('only show the published products', function () {
     $user = User::factory()->create(['is_admin' => true]);
     $producto_visible = Product::factory()->create(

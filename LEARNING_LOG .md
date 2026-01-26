@@ -263,3 +263,33 @@ Importante: Se debe agregar al JsonResource para que la API lo envíe.
 Mutator (set): Transforma el dato antes de entrar (Escritura).
 
 Ejemplo: Capitalizar nombres automáticamente al guardar. Garantiza integridad de datos.
+
+[24-01-2026] - Cierre Proyecto 2: Eloquent Avanzado (Scopes & Attributes)
+1. 🔍 Scopes (Ámbitos de Consulta)
+Aprendí a limpiar mis controladores encapsulando lógica de SQL dentro del Modelo.
+
+Concepto: En lugar de repetir where('status', 'published') en todos lados, creo un método scopePublished.
+
+Uso: Product::published()->search('termino')->get(). Hace el código más legible y mantenible.
+
+Scopes Dinámicos: Pueden recibir parámetros (como el término de búsqueda) para construir queries complejas al vuelo.
+
+2. 🗑️ Soft Deletes (Papelera de Reciclaje)
+Implementé un sistema de borrado seguro.
+
+Mecánica: Al borrar, no se elimina la fila, solo se llena el campo deleted_at.
+
+Recuperación: Aprendí que find() ignora los borrados por defecto. Para restaurar, debo usar withTrashed()->find($id)->restore().
+
+3. 🧬 Accessors & Mutators (Casting Moderno)
+La diferencia entre "Gafas de Realidad Aumentada" y "Cirugía Plástica".
+
+Accessor (get): Transforma el dato al salir (Lectura).
+
+Ejemplo: Convertir 6292 (int) a "$62.92 USD" (string) automáticamente.
+
+Importante: Se debe agregar al JsonResource para que la API lo envíe.
+
+Mutator (set): Transforma el dato antes de entrar (Escritura).
+
+Ejemplo: Capitalizar nombres automáticamente al guardar. Garantiza integridad de datos.
